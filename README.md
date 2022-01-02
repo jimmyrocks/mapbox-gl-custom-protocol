@@ -13,7 +13,7 @@ This code is not needed with Maplibre-gl-js. If it detects that `addProtocol` is
 
 See information on how to define the `protocolLoadFn` here: https://github.com/maplibre/maplibre-gl-js/blob/492bec58c5684609af8fba81ef01e5f5a3ef0711/src/index.js#L185
 ```javascript
-<script src="../dist/mapbox-gl-vector-custom-protocol.js"></script>
+<script src="https://loc8.us/mapbox-gl-vector-custom-protocol/dist/mapbox-gl-vector-custom-protocol.min.js"></script>
 
 map.addSourceType('vector-custom', VectorCustomProtocol(mapboxgl), (e) => {
     if (e) {
