@@ -1,0 +1,75 @@
+<!-- ADAPTED FROM: https://maplibre.org/maplibre-gl-js-docs/example/simple-map/ -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Display Vector Tiles with a Custom Protocol</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="../dist/mapbox-gl-vector-custom-protocol.js"></script>
+    <script src="./arcgis-tiles.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+
+        const map = new maplibregl.Map({
+            container: 'map',
+            center: [-4.850, 57.044],
+            zoom: 8
+        });
+
+        map.addSourceType('vector-custom', VectorCustomProtocol(maplibregl), (e) => e && console.error('There was an error', e));
+        maplibregl.addProtocol('arcgis-tiles', arcgisTiles);
+
+        // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
+        map.addSource('SCOTLAND', {
+            'type': 'vector-custom',
+            'tiles': [
+                'arcgis-tiles://HLiFKZKUbLetDDpP/SNH_Natural_Heritage_Designations/{z}/{y}/{x}'
+            ]
+        });
+
+        // Add a basic background
+        map.addLayer({
+            "id": "background",
+            "type": "background",
+            "paint": {
+                "background-color": "#D8F2FF"
+            }
+        });
+        
+        map.addLayer({
+            "id":	"Nature Designations/NNR_SCOTLAND",
+            "type":	"fill",
+            "source":	"SCOTLAND",
+            "source-layer":	"NNR_SCOTLAND",
+            "paint": {
+                'fill-color': "#CD8966",
+                'fill-outline-color': "#895A44"
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
