@@ -1,0 +1,30 @@
+{
+    "name": "mapbox-gl-vector-custom-protocol",
+    "version": "0.0.1",
+    "description": "Allows custom protocols to be used with the vector tile layer",
+    "author": "James McAndrew",
+    "license": "MIT",
+    "main": "dist/mapbox-gl-vector-custom-protocol.js",
+    "module": "dist/mapbox-gl-vector-custom-protocol.esm.js",
+    "browser": "dist/mapbox-gl-vector-custom-protocol.min.js",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "clean": "rm -rf ./dist",
+        "build-dev": "NODE_ENV=development npm run build",
+        "watch-dev": "NODE_ENV=development npm run watch",
+        "build-prod": "NODE_ENV=production npm run build",
+        "build": "npm run clean && rollup -c rollup.config.js",
+        "watch": "npm run clean && rollup -c rollup.config.js --watch"
+    },
+    "devDependencies": {
+        "@open-wc/building-rollup": "^2.0.1",
+        "@rollup/plugin-typescript": "^8.3.0",
+        "maplibre-gl": "2.0.0-pre.6",
+        "rollup": "^2.62.0",
+        "rollup-plugin-sourcemaps": "^0.6.3",
+        "rollup-plugin-terser": "^7.0.2",
+        "typescript": "^4.5.4"
+    }
+}
