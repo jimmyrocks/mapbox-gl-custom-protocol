@@ -12,7 +12,7 @@ const env = process.env.NODE_ENV  || 'development';
 const baseConfig = {
   input: './src/index.ts',
   output: {
-    name: 'VectorCustomProtocol'
+    name: 'CustomProtocol'
   },
   treeshake: env === 'production',
   plugins: [typescript()]
