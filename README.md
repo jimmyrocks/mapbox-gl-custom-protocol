@@ -15,7 +15,7 @@ See information on how to define the `protocolLoadFn` here: https://github.com/m
 ```javascript
 <script src="https://loc8.us/mapbox-gl-vector-custom-protocol/dist/mapbox-gl-vector-custom-protocol.min.js"></script>
 
-map.addSourceType('vector-custom', VectorCustomProtocol(mapboxgl), (e) => {
+map.addSourceType('vector-custom', VectorCustomProtocol(mapboxgl).vector, (e) => {
     if (e) {
       console.error('There was an error', e);
     }
@@ -25,5 +25,9 @@ mapboxgl.addProtocol('protocol-name', protocolLoadFn);
 ```
 
 ## Examples ⚙️
-* [ESRI Tiles](./examples/index.html)
-* [ESRI Tiles using Maplibre-gl-js](./examples/maplibregljs.html) (Tests the ability to still work with maplibregljs)
+* [ESRI Tiles](./examples/vector.html)
+* [ESRI Tiles using Maplibre-gl-js](./examples/vector-maplibregljs.html) (Tests the ability to still work with maplibregljs)
+* [Raster OSM Tiles](./examples/raster.html)
+* [Raster OSM Tiles using Maplibre-gl-js](./examples/raster-maplibregljs.html) (Tests the ability to still work with maplibregljs)
+* [GeoJSON Layer](./examples/geojson.html)
+* [GeoJSON Layer using Maplibre-gl-js](./examples/geojson-maplibregljs.html) (Tests the ability to still work with maplibregljs)
