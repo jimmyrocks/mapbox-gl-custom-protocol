@@ -4,68 +4,150 @@ import {
     Callback,
     RequestParameters,
     ResponseCallback,
-    Cancelable,
-    VectorSourceSpecification,
-    Dispatcher,
-    Evented
+    Cancelable
 } from 'maplibre-gl';
 
+type MapLibrary = typeof maplibregl & {'_protocols'?: Map<string, LoadFnType>};
 type LoadFnType = (requestParameters: RequestParameters, callback: ResponseCallback<any>) => Cancelable;
 
-const vectorCustomProtocol = (mapLibrary: typeof maplibregl) => {
+const getReqObjectUrl = (loadFn: LoadFnType, rawUrl: string, type: 'vector' | 'raster' | 'geojson'):Promise<string> => new Promise((res, rej) => {
+    const requestParameters:RequestParameters = {
+        url: rawUrl,
+        type: type === ('vector' || 'raster') ? 'arrayBuffer' : 'string' //TODO I think rasters show as arrayBuffer for some reason?
+    };
+    // TODO headers?
+
+    const urlCallback = (error?: Error | null, data?: ArrayBuffer | Object, cacheControl?: string | null, expires?: string | null) => {
+        if (error) {
+            rej(error);
+        } else {
+            let preparedData: Uint8Array | string;
+            if (data instanceof ArrayBuffer) {
+                preparedData = new Uint8Array(data as ArrayBuffer);
+            } else {
+                preparedData = JSON.stringify(data);
+            }
+            const blob = new Blob([preparedData]);
+            const url = URL.createObjectURL(blob);
+            res(url);
+        }
+    };
+    loadFn(requestParameters, urlCallback);
+});
+
+const CustomProtocol = (mapLibrary: MapLibrary) => {
 
     // Adds the protocol tools to the mapLibrary, doesn't overwrite them if they already exist
-    let protocols = new Map<string, ((requestParameters: RequestParameters, callback: ResponseCallback<any>) => Cancelable)>();
-    const alreadySupported = mapLibrary.addProtocol !== undefined;
+    const alreadySupported = mapLibrary.addProtocol !== undefined && mapLibrary._protocols === undefined;
     if (!alreadySupported) {
+        mapLibrary._protocols = mapLibrary._protocols || new Map<string, LoadFnType>();
         mapLibrary.addProtocol = mapLibrary.addProtocol || ((customProtocol: string, loadFn: LoadFnType) => {
-            protocols.set(customProtocol, loadFn);
+            mapLibrary._protocols?.set(customProtocol, loadFn);
         });
         mapLibrary.removeProtocol = mapLibrary.removeProtocol || ((customProtocol: string) => {
-            protocols.delete(customProtocol);
+            mapLibrary._protocols?.delete(customProtocol);
         });
     }
-    return class VectorCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('vector') {
 
-        constructor(id: string, options: VectorSourceSpecification & {collectResourceTiming: boolean}, dispatcher: Dispatcher, eventedParent: Evented) {
-            super(id, options, dispatcher, eventedParent);
-        }
+    return {
+        'vector': class VectorCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('vector') {
 
-        loadTile(tile: Tile, callback: Callback<void>) {
-            const rawUrl = tile.tileID.canonical.url((this as any).tiles, (this as any).scheme);
-            const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
-            if (!alreadySupported && protocols.has(protocol)) {
-                // Probably using Mapboxgljs
-                // There's a matching URL
-                const loadFn = protocols.get(protocol) as LoadFnType;
-                const requestParameters:RequestParameters = {
-                    url: rawUrl,
-                    type: 'arrayBuffer',
+            constructor() {
+                super(...arguments);
+            }
 
-                };
-                const urlCallback = (error?: Error | null, data?: ArrayBuffer, cacheControl?: string | null, expires?: string | null) => {
-                    if (error) {
-                        throw error;
-                    } else {
-                        const byteArray = new Uint8Array(data as ArrayBuffer);
-                        const url = URL.createObjectURL(new Blob([byteArray]));
+            loadTile(tile: Tile, callback: Callback<void>) {
+                const rawUrl = tile.tileID.canonical.url((this as any).tiles, (this as any).scheme);
+                const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
+                if (!alreadySupported && mapLibrary._protocols?.has(protocol)) {
+                    const loadFn = mapLibrary._protocols?.get(protocol) as LoadFnType;
+                    getReqObjectUrl(loadFn, rawUrl, (this as any).type).then((url: string) => {
                         tile.tileID.canonical.url = function () {
                             delete (tile.tileID.canonical as any).url;
                             return url;
                         };
-
                         super.loadTile(tile, function() {
                             URL.revokeObjectURL(url);
                             callback(...arguments);
                         });
-                    }
+                    }).catch((e: Error) => {
+                        console.error('Error loading tile', e.message);
+                        throw e;
+                    });
+                } else {
+                    super.loadTile(tile, callback);
+                }
+            }
+        },
+        'raster': class RasterCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('raster') {
+
+            constructor() {
+                super(...arguments);
+            }
+
+            loadTile(tile: Tile, callback: Callback<void>) {
+                const rawUrl = tile.tileID.canonical.url((this as any).tiles, (this as any).scheme);
+                const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
+                if (!alreadySupported && mapLibrary._protocols?.has(protocol)) {
+                    const loadFn = mapLibrary._protocols?.get(protocol) as LoadFnType;
+                    getReqObjectUrl(loadFn, rawUrl, (this as any).type).then((url: string) => {
+                        tile.tileID.canonical.url = function () {
+                            delete (tile.tileID.canonical as any).url;
+                            return url;
+                        };
+                        super.loadTile(tile, function() {
+                            URL.revokeObjectURL(url);
+                            callback(...arguments);
+                        });
+                    }).catch((e: Error) => {
+                        console.error('Error loading tile', e.message);
+                        throw e;
+                    });
+
+
+                } else {
+                    super.loadTile(tile, callback);
+                }
+            }
+        },
+        'geojson': class GeoJSONCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('geojson') {
+
+            type: 'geojson';
+
+            constructor() {
+                super(...arguments);
+                this.type = 'geojson';
+            }
+
+            _updateWorkerData(callback: Callback<void>) {
+
+                const that = (this as any);
+                const data = that._data;
+                const done = () => {
+                    super._updateWorkerData(callback);
                 };
-                loadFn(requestParameters, urlCallback);
-            } else {
-                super.loadTile(tile, callback);
+
+                if (typeof data === 'string') {
+                    const protocol = data.substring(0, data.indexOf('://'));
+                    if (!alreadySupported && mapLibrary._protocols?.has(protocol)) {
+                        const loadFn = mapLibrary._protocols?.get(protocol) as LoadFnType;
+
+                        getReqObjectUrl(loadFn, data, (this as any).type).then((url: string) => {
+                            that._data = url;
+                            done();
+                        });
+                    } else {
+                        // Use the build in code
+                        done();
+                    }
+                } else {
+                    // If data is already GeoJSON, then pass it through
+                    done();
+                }
+
             }
         }
-    };
+    }
 };
 
-export default vectorCustomProtocol;
+export default CustomProtocol;
