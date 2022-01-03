@@ -7,13 +7,10 @@ window.osmTiles = (params, callback) => {
 
     const newUrl = `https://${prefix}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
 
-   console.log(params, callback, z,x,y,subdomains, prefix);
-
     fetch(newUrl)
         .then(response => {
             if (response.status == 200) {
                 console.log('params.type', params.type);
-                const fnType = params.type === 'arrayBuffer' ? 'arrayBuffer' : 'blob';
                 response[fnType]().then(data => {
                     callback(null, data, null, null);
                 });
