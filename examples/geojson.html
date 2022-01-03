@@ -6,10 +6,10 @@
     <meta charset="utf-8" />
     <title>Display Vector Tiles with a Custom Protocol</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.9.1/mapbox-gl.js"></script>
     <script src="../dist/mapbox-gl-vector-custom-protocol.js"></script>
-    <script src="./arcgis-tiles.js"></script>
+    <script src="./github-pages.js"></script>
 
     <style>
         body {
@@ -31,21 +31,19 @@
 
     <script>
 
-        const map = new maplibregl.Map({
+        const map = new mapboxgl.Map({
             container: 'map',
             center: [-4.850, 57.044],
             zoom: 8
         });
 
-        map.addSourceType('vector-custom', CustomProtocol(maplibregl).vector, (e) => e && console.error('There was an error', e));
-        maplibregl.addProtocol('arcgis-tiles', arcgisTiles);
+        map.addSourceType('geojson-custom', CustomProtocol(mapboxgl).geojson, (e) => e && console.error('There was an error', e));
+        mapboxgl.addProtocol('github-pages', arcgisTiles);
 
         // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
-        map.addSource('SCOTLAND', {
-            'type': 'vector-custom',
-            'tiles': [
-                'arcgis-tiles://HLiFKZKUbLetDDpP/SNH_Natural_Heritage_Designations/{z}/{y}/{x}'
-            ]
+        map.addSource('SMALLISLES', {
+            'type': 'geojson-custom',
+            'data': 'github-pages://jimmyrocks/mapbox-gl-vector-custom-protocol/examples/small_isles.geojson'
         });
 
         // Add a basic background
@@ -58,13 +56,12 @@
         });
         
         map.addLayer({
-            "id":	"Nature Designations/NNR_SCOTLAND",
+            "id":	"Small Isles Marine Protected Area",
             "type":	"fill",
-            "source":	"SCOTLAND",
-            "source-layer":	"NNR_SCOTLAND",
+            "source":	"SMALLISLES",
             "paint": {
-                'fill-color': "#CD8966",
-                'fill-outline-color': "#895A44"
+                'fill-color': "#72cd66",
+                'fill-outline-color': "#458b48"
             }
         });
 

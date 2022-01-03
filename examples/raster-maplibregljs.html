@@ -9,8 +9,9 @@
     <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
     <script src="../dist/mapbox-gl-vector-custom-protocol.js"></script>
-    <script src="./arcgis-tiles.js"></script>
+    <script src="./osm-raster.js"></script>
 
+    
     <style>
         body {
             margin: 0;
@@ -37,14 +38,13 @@
             zoom: 8
         });
 
-        map.addSourceType('vector-custom', CustomProtocol(maplibregl).vector, (e) => e && console.error('There was an error', e));
-        maplibregl.addProtocol('arcgis-tiles', arcgisTiles);
+        map.addSourceType('raster-custom', CustomProtocol(maplibregl).raster, (e) => e && console.error('There was an error', e));
+        maplibregl.addProtocol('osm', osmTiles);
 
-        // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
-        map.addSource('SCOTLAND', {
-            'type': 'vector-custom',
+        map.addSource('OSM', {
+            'type': 'raster-custom',
             'tiles': [
-                'arcgis-tiles://HLiFKZKUbLetDDpP/SNH_Natural_Heritage_Designations/{z}/{y}/{x}'
+                'osm://{z}/{x}/{y}'
             ]
         });
 
@@ -58,14 +58,9 @@
         });
         
         map.addLayer({
-            "id":	"Nature Designations/NNR_SCOTLAND",
-            "type":	"fill",
-            "source":	"SCOTLAND",
-            "source-layer":	"NNR_SCOTLAND",
-            "paint": {
-                'fill-color': "#CD8966",
-                'fill-outline-color': "#895A44"
-            }
+            "id": "OSM",
+            "type":	"raster",
+            "source": "OSM"
         });
 
     </script>

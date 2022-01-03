@@ -2,8 +2,10 @@
 
 window.arcgisTiles = (params, callback) => {
     const prefix = 'https://tiles.arcgis.com/tiles';
-    const parts = params.url.split('://')[1].split('/');
-    const newUrl = `${prefix}/${parts[0]}/arcgis/rest/services/${parts[1]}/VectorTileServer/tile/${parts[2]}/${parts[3]}/${parts[4]}.pbf`;
+    const [key, service, z, y, x] = params.url.split('://')[1].split('/');
+    const newUrl = `${prefix}/${key}/arcgis/rest/services/${service}/VectorTileServer/tile/${z}/${y}/${x}.pbf`;
+
+    console.log(params, callback, z,x,y,service, prefix);
 
     fetch(newUrl)
         .then(response => {
