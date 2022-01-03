@@ -1,37 +1,54 @@
-const vectorCustomProtocol = (mapLibrary) => {
+const getReqObjectUrl = (loadFn, rawUrl, type) => new Promise((res, rej) => {
+    const requestParameters = {
+        url: rawUrl,
+        type: type === ('vector' ) ? 'arrayBuffer' : 'string' //TODO I think rasters show as arrayBuffer for some reason?
+    };
+    // TODO headers?
+    const urlCallback = (error, data, cacheControl, expires) => {
+        if (error) {
+            rej(error);
+        }
+        else {
+            let preparedData;
+            if (data instanceof ArrayBuffer) {
+                preparedData = new Uint8Array(data);
+            }
+            else {
+                preparedData = JSON.stringify(data);
+            }
+            const blob = new Blob([preparedData]);
+            const url = URL.createObjectURL(blob);
+            res(url);
+        }
+    };
+    loadFn(requestParameters, urlCallback);
+});
+const CustomProtocol = (mapLibrary) => {
     // Adds the protocol tools to the mapLibrary, doesn't overwrite them if they already exist
-    let protocols = new Map();
-    const alreadySupported = mapLibrary.addProtocol !== undefined;
+    const alreadySupported = mapLibrary.addProtocol !== undefined && mapLibrary._protocols === undefined;
     if (!alreadySupported) {
+        mapLibrary._protocols = mapLibrary._protocols || new Map();
         mapLibrary.addProtocol = mapLibrary.addProtocol || ((customProtocol, loadFn) => {
-            protocols.set(customProtocol, loadFn);
+            var _a;
+            (_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.set(customProtocol, loadFn);
         });
         mapLibrary.removeProtocol = mapLibrary.removeProtocol || ((customProtocol) => {
-            protocols.delete(customProtocol);
+            var _a;
+            (_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.delete(customProtocol);
         });
     }
-    return class VectorCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('vector') {
-        constructor(id, options, dispatcher, eventedParent) {
-            super(id, options, dispatcher, eventedParent);
-        }
-        loadTile(tile, callback) {
-            const rawUrl = tile.tileID.canonical.url(this.tiles, this.scheme);
-            const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
-            if (!alreadySupported && protocols.has(protocol)) {
-                // Probably using Mapboxgljs
-                // There's a matching URL
-                const loadFn = protocols.get(protocol);
-                const requestParameters = {
-                    url: rawUrl,
-                    type: 'arrayBuffer',
-                };
-                const urlCallback = (error, data, cacheControl, expires) => {
-                    if (error) {
-                        throw error;
-                    }
-                    else {
-                        const byteArray = new Uint8Array(data);
-                        const url = URL.createObjectURL(new Blob([byteArray]));
+    return {
+        'vector': class VectorCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('vector') {
+            constructor() {
+                super(...arguments);
+            }
+            loadTile(tile, callback) {
+                var _a, _b;
+                const rawUrl = tile.tileID.canonical.url(this.tiles, this.scheme);
+                const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
+                if (!alreadySupported && ((_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.has(protocol))) {
+                    const loadFn = (_b = mapLibrary._protocols) === null || _b === void 0 ? void 0 : _b.get(protocol);
+                    getReqObjectUrl(loadFn, rawUrl, this.type).then((url) => {
                         tile.tileID.canonical.url = function () {
                             delete tile.tileID.canonical.url;
                             return url;
@@ -40,15 +57,78 @@ const vectorCustomProtocol = (mapLibrary) => {
                             URL.revokeObjectURL(url);
                             callback(...arguments);
                         });
-                    }
-                };
-                loadFn(requestParameters, urlCallback);
+                    }).catch((e) => {
+                        console.error('Error loading tile', e.message);
+                        throw e;
+                    });
+                }
+                else {
+                    super.loadTile(tile, callback);
+                }
             }
-            else {
-                super.loadTile(tile, callback);
+        },
+        'raster': class RasterCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('raster') {
+            constructor() {
+                super(...arguments);
+            }
+            loadTile(tile, callback) {
+                var _a, _b;
+                const rawUrl = tile.tileID.canonical.url(this.tiles, this.scheme);
+                const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
+                if (!alreadySupported && ((_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.has(protocol))) {
+                    const loadFn = (_b = mapLibrary._protocols) === null || _b === void 0 ? void 0 : _b.get(protocol);
+                    getReqObjectUrl(loadFn, rawUrl, this.type).then((url) => {
+                        tile.tileID.canonical.url = function () {
+                            delete tile.tileID.canonical.url;
+                            return url;
+                        };
+                        super.loadTile(tile, function () {
+                            URL.revokeObjectURL(url);
+                            callback(...arguments);
+                        });
+                    }).catch((e) => {
+                        console.error('Error loading tile', e.message);
+                        throw e;
+                    });
+                }
+                else {
+                    super.loadTile(tile, callback);
+                }
+            }
+        },
+        'geojson': class GeoJSONCustomProtocolSourceSpecification extends mapLibrary.Style.getSourceType('geojson') {
+            constructor() {
+                super(...arguments);
+                this.type = 'geojson';
+            }
+            _updateWorkerData(callback) {
+                var _a, _b;
+                const that = this;
+                const data = that._data;
+                const done = () => {
+                    super._updateWorkerData(callback);
+                };
+                if (typeof data === 'string') {
+                    const protocol = data.substring(0, data.indexOf('://'));
+                    if (!alreadySupported && ((_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.has(protocol))) {
+                        const loadFn = (_b = mapLibrary._protocols) === null || _b === void 0 ? void 0 : _b.get(protocol);
+                        getReqObjectUrl(loadFn, data, this.type).then((url) => {
+                            that._data = url;
+                            done();
+                        });
+                    }
+                    else {
+                        // Use the build in code
+                        done();
+                    }
+                }
+                else {
+                    // If data is already GeoJSON, then pass it through
+                    done();
+                }
             }
         }
     };
 };
 
-export { vectorCustomProtocol as default };
+export { CustomProtocol as default };
