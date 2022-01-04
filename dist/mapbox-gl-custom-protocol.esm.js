@@ -1,9 +1,14 @@
-const getReqObjectUrl = (loadFn, rawUrl, type) => new Promise((res, rej) => {
-    const requestParameters = {
+const getReqObjectUrl = (loadFn, rawUrl, type, collectResourceTiming) => new Promise((res, rej) => {
+    let requestParameters = {
         url: rawUrl,
-        type: type === ('vector' ) ? 'arrayBuffer' : 'string' //TODO I think rasters show as arrayBuffer for some reason?
+        type: type === ('vector' ) ? 'arrayBuffer' : 'string',
+        collectResourceTiming: collectResourceTiming
     };
-    // TODO headers?
+    if (type === 'raster') {
+        requestParameters.headers = {
+            accept: "image/webp,*/*"
+        };
+    }
     const urlCallback = (error, data, cacheControl, expires) => {
         if (error) {
             rej(error);
@@ -48,7 +53,7 @@ const CustomProtocol = (mapLibrary) => {
                 const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
                 if (!alreadySupported && ((_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.has(protocol))) {
                     const loadFn = (_b = mapLibrary._protocols) === null || _b === void 0 ? void 0 : _b.get(protocol);
-                    getReqObjectUrl(loadFn, rawUrl, this.type).then((url) => {
+                    getReqObjectUrl(loadFn, rawUrl, this.type, this._collectResourceTiming).then((url) => {
                         tile.tileID.canonical.url = function () {
                             delete tile.tileID.canonical.url;
                             return url;
@@ -77,7 +82,7 @@ const CustomProtocol = (mapLibrary) => {
                 const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
                 if (!alreadySupported && ((_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.has(protocol))) {
                     const loadFn = (_b = mapLibrary._protocols) === null || _b === void 0 ? void 0 : _b.get(protocol);
-                    getReqObjectUrl(loadFn, rawUrl, this.type).then((url) => {
+                    getReqObjectUrl(loadFn, rawUrl, this.type, this._collectResourceTiming).then((url) => {
                         tile.tileID.canonical.url = function () {
                             delete tile.tileID.canonical.url;
                             return url;
@@ -105,16 +110,21 @@ const CustomProtocol = (mapLibrary) => {
                 var _a, _b;
                 const that = this;
                 const data = that._data;
-                const done = () => {
-                    super._updateWorkerData(callback);
+                const done = (url) => {
+                    super._updateWorkerData(function () {
+                        if (url !== undefined) {
+                            URL.revokeObjectURL(url);
+                        }
+                        callback(...arguments);
+                    });
                 };
                 if (typeof data === 'string') {
                     const protocol = data.substring(0, data.indexOf('://'));
                     if (!alreadySupported && ((_a = mapLibrary._protocols) === null || _a === void 0 ? void 0 : _a.has(protocol))) {
                         const loadFn = (_b = mapLibrary._protocols) === null || _b === void 0 ? void 0 : _b.get(protocol);
-                        getReqObjectUrl(loadFn, data, this.type).then((url) => {
+                        getReqObjectUrl(loadFn, data, this.type, this._collectResourceTiming).then((url) => {
                             that._data = url;
-                            done();
+                            done(url);
                         });
                     }
                     else {
