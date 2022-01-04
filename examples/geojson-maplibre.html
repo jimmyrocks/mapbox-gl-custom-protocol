@@ -4,11 +4,11 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Display Vector Tiles with a Custom Protocol</title>
+    <title>Display GeoJSON Data with a Custom Protocol</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
-    <script src="../dist/mapbox-gl-vector-custom-protocol.js"></script>
+    <script src="../dist/mapbox-gl-custom-protocol.js"></script>
     <script src="./github-pages.js"></script>
 
     <style>
@@ -43,7 +43,7 @@
         // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
         map.addSource('SMALLISLES', {
             'type': 'geojson-custom',
-            'data': 'github-pages://jimmyrocks/mapbox-gl-vector-custom-protocol/examples/small_isles.geojson'
+            'data': 'github-pages://jimmyrocks/mapbox-gl-custom-protocol/examples/small_isles.geojson'
         });
 
         // Add a basic background
@@ -54,11 +54,11 @@
                 "background-color": "#D8F2FF"
             }
         });
-        
+
         map.addLayer({
-            "id":	"Small Isles Marine Protected Area",
-            "type":	"fill",
-            "source":	"SMALLISLES",
+            "id": "Small Isles Marine Protected Area",
+            "type": "fill",
+            "source": "SMALLISLES",
             "paint": {
                 'fill-color': "#72cd66",
                 'fill-outline-color': "#458b48"

@@ -5,8 +5,6 @@ window.arcgisTiles = (params, callback) => {
     const [key, service, z, y, x] = params.url.split('://')[1].split('/');
     const newUrl = `${prefix}/${key}/arcgis/rest/services/${service}/VectorTileServer/tile/${z}/${y}/${x}.pbf`;
 
-    console.log(params, callback, z,x,y,service, prefix);
-
     fetch(newUrl)
         .then(response => {
             if (response.status == 200) {

@@ -8,7 +8,7 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
     <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
-    <script src="../dist/mapbox-gl-vector-custom-protocol.js"></script>
+    <script src="../dist/mapbox-gl-custom-protocol.js"></script>
     <script src="./arcgis-tiles.js"></script>
 
     <style>
@@ -56,12 +56,12 @@
                 "background-color": "#D8F2FF"
             }
         });
-        
+
         map.addLayer({
-            "id":	"Nature Designations/NNR_SCOTLAND",
-            "type":	"fill",
-            "source":	"SCOTLAND",
-            "source-layer":	"NNR_SCOTLAND",
+            "id": "Nature Designations/NNR_SCOTLAND",
+            "type": "fill",
+            "source": "SCOTLAND",
+            "source-layer": "NNR_SCOTLAND",
             "paint": {
                 'fill-color': "#CD8966",
                 'fill-outline-color': "#895A44"

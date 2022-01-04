@@ -1,17 +1,16 @@
 // https://github.com/maplibre/maplibre-gl-js/blob/ddf69421c6ae34c808afefec309a5beecdb7500e/src/index.ts#L151
 
 window.osmTiles = (params, callback) => {
-    const [z,x,y] = params.url.split('://')[1].split('/');
+    const [z, x, y] = params.url.split('://')[1].split('/');
     const subdomains = 'abc';
-    const prefix =  subdomains.split('')[(parseInt(x,10) + parseInt(y,10)) % subdomains.length];
+    const prefix = subdomains.split('')[(parseInt(x, 10) + parseInt(y, 10)) % subdomains.length];
 
     const newUrl = `https://${prefix}.tile.openstreetmap.org/${z}/${x}/${y}.png`;
 
     fetch(newUrl)
         .then(response => {
             if (response.status == 200) {
-                console.log('params.type', params.type);
-                response[fnType]().then(data => {
+                response.arrayBuffer().then(data => {
                     callback(null, data, null, null);
                 });
             } else {
