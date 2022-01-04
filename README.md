@@ -1,4 +1,4 @@
-# mapbox-gl-vector-custom-protocol
+# mapbox-gl-custom-protocol
 Supports custom protocols when using [Mapbox GLJS](https://www.mapbox.com/mapbox-gljs) version v1.9.1.
 It _may_ work with future versions, but it hasn't been tested.
 
@@ -13,7 +13,7 @@ This code is not needed with Maplibre-gl-js. If it detects that `addProtocol` is
 
 See information on how to define the `protocolLoadFn` here: https://github.com/maplibre/maplibre-gl-js/blob/492bec58c5684609af8fba81ef01e5f5a3ef0711/src/index.js#L185
 ```javascript
-<script src="https://loc8.us/mapbox-gl-vector-custom-protocol/dist/mapbox-gl-vector-custom-protocol.min.js"></script>
+<script src="https://loc8.us/mapbox-gl-custom-protocol/dist/mapbox-gl-custom-protocol.min.js"></script>
 
 map.addSourceType('vector-custom', VectorCustomProtocol(mapboxgl).vector, (e) => {
     if (e) {
@@ -26,8 +26,8 @@ mapboxgl.addProtocol('protocol-name', protocolLoadFn);
 
 ## Examples ⚙️
 * [ESRI Tiles](./examples/vector.html)
-* [ESRI Tiles using Maplibre-gl-js](./examples/vector-maplibregljs.html) (Tests the ability to still work with maplibregljs)
+* [ESRI Tiles using Maplibre-gl-js](./examples/vector-maplibre.html) (Tests the ability to still work with maplibregljs)
 * [Raster OSM Tiles](./examples/raster.html)
-* [Raster OSM Tiles using Maplibre-gl-js](./examples/raster-maplibregljs.html) (Tests the ability to still work with maplibregljs)
+* [Raster OSM Tiles using Maplibre-gl-js](./examples/raster-maplibre.html) (Tests the ability to still work with maplibregljs)
 * [GeoJSON Layer](./examples/geojson.html)
-* [GeoJSON Layer using Maplibre-gl-js](./examples/geojson-maplibregljs.html) (Tests the ability to still work with maplibregljs)
+* [GeoJSON Layer using Maplibre-gl-js](./examples/geojson-maplibre.html) (Tests the ability to still work with maplibregljs)
