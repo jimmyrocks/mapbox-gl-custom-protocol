@@ -7,15 +7,21 @@ import {
     Cancelable
 } from 'maplibre-gl';
 
-type MapLibrary = typeof maplibregl & {'_protocols'?: Map<string, LoadFnType>};
+type MapLibrary = typeof maplibregl & { '_protocols'?: Map<string, LoadFnType> };
 type LoadFnType = (requestParameters: RequestParameters, callback: ResponseCallback<any>) => Cancelable;
 
-const getReqObjectUrl = (loadFn: LoadFnType, rawUrl: string, type: 'vector' | 'raster' | 'geojson'):Promise<string> => new Promise((res, rej) => {
-    const requestParameters:RequestParameters = {
+const getReqObjectUrl = (loadFn: LoadFnType, rawUrl: string, type: 'vector' | 'raster' | 'geojson', collectResourceTiming?: boolean): Promise<string> => new Promise((res, rej) => {
+    let requestParameters: RequestParameters = {
         url: rawUrl,
-        type: type === ('vector' || 'raster') ? 'arrayBuffer' : 'string' //TODO I think rasters show as arrayBuffer for some reason?
+        type: type === ('vector' || 'raster') ? 'arrayBuffer' : 'string',
+        collectResourceTiming: collectResourceTiming
     };
-    // TODO headers?
+    if (type === 'raster') {
+        requestParameters.headers = {
+            accept: "image/webp,*/*"
+        };
+    }
+
 
     const urlCallback = (error?: Error | null, data?: ArrayBuffer | Object, cacheControl?: string | null, expires?: string | null) => {
         if (error) {
@@ -61,12 +67,12 @@ const CustomProtocol = (mapLibrary: MapLibrary) => {
                 const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
                 if (!alreadySupported && mapLibrary._protocols?.has(protocol)) {
                     const loadFn = mapLibrary._protocols?.get(protocol) as LoadFnType;
-                    getReqObjectUrl(loadFn, rawUrl, (this as any).type).then((url: string) => {
+                    getReqObjectUrl(loadFn, rawUrl, (this as any).type, (this as any)._collectResourceTiming).then((url: string) => {
                         tile.tileID.canonical.url = function () {
                             delete (tile.tileID.canonical as any).url;
                             return url;
                         };
-                        super.loadTile(tile, function() {
+                        super.loadTile(tile, function () {
                             URL.revokeObjectURL(url);
                             callback(...arguments);
                         });
@@ -90,12 +96,12 @@ const CustomProtocol = (mapLibrary: MapLibrary) => {
                 const protocol = rawUrl.substring(0, rawUrl.indexOf('://'));
                 if (!alreadySupported && mapLibrary._protocols?.has(protocol)) {
                     const loadFn = mapLibrary._protocols?.get(protocol) as LoadFnType;
-                    getReqObjectUrl(loadFn, rawUrl, (this as any).type).then((url: string) => {
+                    getReqObjectUrl(loadFn, rawUrl, (this as any).type, (this as any)._collectResourceTiming).then((url: string) => {
                         tile.tileID.canonical.url = function () {
                             delete (tile.tileID.canonical as any).url;
                             return url;
                         };
-                        super.loadTile(tile, function() {
+                        super.loadTile(tile, function () {
                             URL.revokeObjectURL(url);
                             callback(...arguments);
                         });
@@ -123,8 +129,13 @@ const CustomProtocol = (mapLibrary: MapLibrary) => {
 
                 const that = (this as any);
                 const data = that._data;
-                const done = () => {
-                    super._updateWorkerData(callback);
+                const done = (url?: string) => {
+                    super._updateWorkerData(function () {
+                        if (url !== undefined) {
+                            URL.revokeObjectURL(url);
+                        }
+                        callback(...arguments);
+                    });
                 };
 
                 if (typeof data === 'string') {
@@ -132,9 +143,9 @@ const CustomProtocol = (mapLibrary: MapLibrary) => {
                     if (!alreadySupported && mapLibrary._protocols?.has(protocol)) {
                         const loadFn = mapLibrary._protocols?.get(protocol) as LoadFnType;
 
-                        getReqObjectUrl(loadFn, data, (this as any).type).then((url: string) => {
+                        getReqObjectUrl(loadFn, data, (this as any).type, (this as any)._collectResourceTiming).then((url: string) => {
                             that._data = url;
-                            done();
+                            done(url);
                         });
                     } else {
                         // Use the build in code
