@@ -1,12 +1,12 @@
 {
-    "name": "mapbox-gl-vector-custom-protocol",
+    "name": "mapbox-gl-custom-protocol",
     "version": "0.0.1",
     "description": "Allows custom protocols to be used with the vector tile layer",
     "author": "James McAndrew",
     "license": "MIT",
-    "main": "dist/mapbox-gl-vector-custom-protocol.js",
-    "module": "dist/mapbox-gl-vector-custom-protocol.esm.js",
-    "browser": "dist/mapbox-gl-vector-custom-protocol.min.js",
+    "main": "dist/mapbox-gl-custom-protocol.js",
+    "module": "dist/mapbox-gl-custom-protocol.esm.js",
+    "browser": "dist/mapbox-gl-custom-protocol.min.js",
     "files": [
         "dist"
     ],
