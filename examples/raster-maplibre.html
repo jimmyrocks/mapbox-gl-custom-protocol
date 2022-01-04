@@ -41,30 +41,31 @@
 
         map.addSourceType('raster-custom', CustomProtocol(maplibregl).raster, (e) => e && console.error('There was an error', e));
         maplibregl.addProtocol('osm', osmTiles);
+        
+        map.on('load', () => {
+            map.addSource('OSM', {
+                'type': 'raster-custom',
+                'tileSize': 256,
+                'tiles': [
+                    'osm://{z}/{x}/{y}'
+                ]
+            });
 
-        map.addSource('OSM', {
-            'type': 'raster-custom',
-            'tileSize': 256,
-            'tiles': [
-                'osm://{z}/{x}/{y}'
-            ]
+            // Add a basic background
+            map.addLayer({
+                "id": "background",
+                "type": "background",
+                "paint": {
+                    "background-color": "#D8F2FF"
+                }
+            });
+
+            map.addLayer({
+                "id": "OSM",
+                "type": "raster",
+                "source": "OSM"
+            });
         });
-
-        // Add a basic background
-        map.addLayer({
-            "id": "background",
-            "type": "background",
-            "paint": {
-                "background-color": "#D8F2FF"
-            }
-        });
-
-        map.addLayer({
-            "id": "OSM",
-            "type": "raster",
-            "source": "OSM"
-        });
-
     </script>
 
 </body>

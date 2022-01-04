@@ -42,27 +42,30 @@
         map.addSourceType('raster-custom', CustomProtocol(mapboxgl).raster, (e) => e && console.error('There was an error', e));
         mapboxgl.addProtocol('osm', osmTiles);
 
-        map.addSource('OSM', {
-            'type': 'raster-custom',
-            'tileSize': 256,
-            'tiles': [
-                'osm://{z}/{x}/{y}'
-            ]
-        });
+        map.on('load', () => {
 
-        // Add a basic background
-        map.addLayer({
-            "id": "background",
-            "type": "background",
-            "paint": {
-                "background-color": "#D8F2FF"
-            }
-        });
+            map.addSource('OSM', {
+                'type': 'raster-custom',
+                'tileSize': 256,
+                'tiles': [
+                    'osm://{z}/{x}/{y}'
+                ]
+            });
 
-        map.addLayer({
-            "id": "OSM",
-            "type": "raster",
-            "source": "OSM"
+            // Add a basic background
+            map.addLayer({
+                "id": "background",
+                "type": "background",
+                "paint": {
+                    "background-color": "#D8F2FF"
+                }
+            });
+
+            map.addLayer({
+                "id": "OSM",
+                "type": "raster",
+                "source": "OSM"
+            });
         });
 
     </script>

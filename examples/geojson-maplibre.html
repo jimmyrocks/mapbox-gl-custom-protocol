@@ -41,31 +41,32 @@
         map.addSourceType('geojson-custom', CustomProtocol(maplibregl).geojson, (e) => e && console.error('There was an error', e));
         maplibregl.addProtocol('github-pages', arcgisTiles);
 
-        // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
-        map.addSource('SMALLISLES', {
-            'type': 'geojson-custom',
-            'data': 'github-pages://jimmyrocks/mapbox-gl-custom-protocol/examples/small_isles.geojson'
-        });
+        map.on('load', () => {
+            // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
+            map.addSource('SMALLISLES', {
+                'type': 'geojson-custom',
+                'data': 'github-pages://jimmyrocks/mapbox-gl-custom-protocol/examples/small_isles.geojson'
+            });
 
-        // Add a basic background
-        map.addLayer({
-            "id": "background",
-            "type": "background",
-            "paint": {
-                "background-color": "#D8F2FF"
-            }
-        });
+            // Add a basic background
+            map.addLayer({
+                "id": "background",
+                "type": "background",
+                "paint": {
+                    "background-color": "#D8F2FF"
+                }
+            });
 
-        map.addLayer({
-            "id": "Small Isles Marine Protected Area",
-            "type": "fill",
-            "source": "SMALLISLES",
-            "paint": {
-                'fill-color': "#72cd66",
-                'fill-outline-color': "#458b48"
-            }
+            map.addLayer({
+                "id": "Small Isles Marine Protected Area",
+                "type": "fill",
+                "source": "SMALLISLES",
+                "paint": {
+                    'fill-color': "#72cd66",
+                    'fill-outline-color': "#458b48"
+                }
+            });
         });
-
     </script>
 
 </body>

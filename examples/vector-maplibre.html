@@ -41,32 +41,35 @@
         map.addSourceType('vector-custom', CustomProtocol(maplibregl).vector, (e) => e && console.error('There was an error', e));
         maplibregl.addProtocol('arcgis-tiles', arcgisTiles);
 
-        // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
-        map.addSource('SCOTLAND', {
-            'type': 'vector-custom',
-            'tiles': [
-                'arcgis-tiles://HLiFKZKUbLetDDpP/SNH_Natural_Heritage_Designations/{z}/{y}/{x}'
-            ]
-        });
+        map.on('load', () => {
 
-        // Add a basic background
-        map.addLayer({
-            "id": "background",
-            "type": "background",
-            "paint": {
-                "background-color": "#D8F2FF"
-            }
-        });
+            // Example from here: https://www.arcgis.com/apps/mapviewer/index.html?webmap=353f1a96be854f77bf063ff97abc69b8
+            map.addSource('SCOTLAND', {
+                'type': 'vector-custom',
+                'tiles': [
+                    'arcgis-tiles://HLiFKZKUbLetDDpP/SNH_Natural_Heritage_Designations/{z}/{y}/{x}'
+                ]
+            });
 
-        map.addLayer({
-            "id": "Nature Designations/NNR_SCOTLAND",
-            "type": "fill",
-            "source": "SCOTLAND",
-            "source-layer": "NNR_SCOTLAND",
-            "paint": {
-                'fill-color': "#CD8966",
-                'fill-outline-color': "#895A44"
-            }
+            // Add a basic background
+            map.addLayer({
+                "id": "background",
+                "type": "background",
+                "paint": {
+                    "background-color": "#D8F2FF"
+                }
+            });
+
+            map.addLayer({
+                "id": "Nature Designations/NNR_SCOTLAND",
+                "type": "fill",
+                "source": "SCOTLAND",
+                "source-layer": "NNR_SCOTLAND",
+                "paint": {
+                    'fill-color': "#CD8966",
+                    'fill-outline-color': "#895A44"
+                }
+            });
         });
 
     </script>
