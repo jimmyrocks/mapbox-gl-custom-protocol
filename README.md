@@ -25,9 +25,9 @@ mapboxgl.addProtocol('protocol-name', protocolLoadFn);
 ```
 
 ## Examples ⚙️
-* [ESRI Tiles](./examples/vector.html)
-* [ESRI Tiles using Maplibre-gl-js](./examples/vector-maplibre.html) (Tests the ability to still work with maplibregljs)
-* [Raster OSM Tiles](./examples/raster.html)
-* [Raster OSM Tiles using Maplibre-gl-js](./examples/raster-maplibre.html) (Tests the ability to still work with maplibregljs)
-* [GeoJSON Layer](./examples/geojson.html)
-* [GeoJSON Layer using Maplibre-gl-js](./examples/geojson-maplibre.html) (Tests the ability to still work with maplibregljs)
+* [ESRI Tiles](https://jimmyrocks.github.io/mapbox-gl-custom-protocol/examples/vector.html)
+* [ESRI Tiles using Maplibre-gl-js](https://jimmyrocks.github.io/mapbox-gl-custom-protocol/examples/vector-maplibre.html) (Tests the ability to still work with maplibregljs)
+* [Raster OSM Tiles](https://jimmyrocks.github.io/mapbox-gl-custom-protocol/examples/raster.html)
+* [Raster OSM Tiles using Maplibre-gl-js](https://jimmyrocks.github.io/mapbox-gl-custom-protocol/examples/raster-maplibre.html) (Tests the ability to still work with maplibregljs)
+* [GeoJSON Layer](https://jimmyrocks.github.io/mapbox-gl-custom-protocol/examples/geojson.html)
+* [GeoJSON Layer using Maplibre-gl-js](https://jimmyrocks.github.io/mapbox-gl-custom-protocol/examples/geojson-maplibre.html) (Tests the ability to still work with maplibregljs)
