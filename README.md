@@ -15,7 +15,7 @@ See information on how to define the `protocolLoadFn` here: https://github.com/m
 ```javascript
 <script src="https://loc8.us/mapbox-gl-custom-protocol/dist/mapbox-gl-custom-protocol.min.js"></script>
 
-map.addSourceType('vector-custom', VectorCustomProtocol(mapboxgl).vector, (e) => {
+map.addSourceType('vector-custom', CustomProtocol(mapboxgl).vector, (e) => {
     if (e) {
       console.error('There was an error', e);
     }
